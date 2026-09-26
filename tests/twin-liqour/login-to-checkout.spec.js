@@ -94,6 +94,13 @@ test("Login, Begin Shopping Mode, Add Product to Cart, Cart and Checkout", async
     if (await understandButton3.isVisible().catch(() => false)) {await understandButton3.click();}
 
     const companySearch = page.locator("//input[@id='super-admin-company-search']");
+
+    // Handle "Welcome To The New Twin B2B" popup if it appears
+    if (await welcomePopup.isVisible().catch(() => false))
+        {
+            const closeButton = welcomePopup.getByRole("button", { name: "Close"});
+            await closeButton.click();
+        }
     
     await expect(companySearch).toBeVisible({ timeout: 15000 });
     
@@ -127,6 +134,15 @@ test("Login, Begin Shopping Mode, Add Product to Cart, Cart and Checkout", async
     
     console.log("Begin Shopping, Login as Super Admin Cronix Test User");
 
+    // Wait for the new page/navigation to load
+    await page.waitForLoadState("load");
+    
+    console.log("Shopping Mode page loaded");
+    
+    // Wait for network requests to settle
+    await page.waitForLoadState("networkidle");
+    
+    console.log("Shopping Mode page is fully loaded");
 
     // =========================================================
     // 10. WAIT FOR SHOPPING MODE / PRODUCT PAGE
@@ -137,6 +153,13 @@ test("Login, Begin Shopping Mode, Add Product to Cart, Cart and Checkout", async
 
     if (await understandButton4.isVisible().catch(() => false)) {await understandButton4.click();}
 
+    // Handle "Welcome To The New Twin B2B" popup if it appears
+    if (await welcomePopup.isVisible().catch(() => false))
+        {
+            const closeButton = welcomePopup.getByRole("button", { name: "Close"});
+            await closeButton.click();
+        }
+
     await page.waitForLoadState("domcontentloaded");
 
     await page.evaluate(() => {window.scrollTo(0, 0);});
@@ -144,6 +167,7 @@ test("Login, Begin Shopping Mode, Add Product to Cart, Cart and Checkout", async
     await page.waitForTimeout(1000);
 
     console.log(`Shopping Mode is active - URL: ${page.url()}`);
+
 
     // =========================================================
     // 11. SEARCH PRODUCT
@@ -155,9 +179,11 @@ test("Login, Begin Shopping Mode, Add Product to Cart, Cart and Checkout", async
     const productSearch = page.getByRole("textbox", { name: "Search All Products", exact: true});
     
     await expect(productSearch).toBeVisible({ timeout: 30000});
+
+    await expect(productSearch).toBeEnabled({ timeout: 30000});
     
     console.log("Header product search is visible");
-    
+
     // Fill product name
     await productSearch.fill(productName);
     
